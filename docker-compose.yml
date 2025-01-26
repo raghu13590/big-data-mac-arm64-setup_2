@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   zookeeper1:
     image: bitnami/zookeeper:latest
@@ -7,10 +9,10 @@ services:
       - "2181:2181"
       - "2280:8080"
     environment:
-      - ZOO_SERVER_ID=1
-      - ZOO_SERVERS=0.0.0.0:2888:3888,zookeeper2:2888:3888
-      - ALLOW_ANONYMOUS_LOGIN=yes
-      - ZOO_4LW_COMMANDS_WHITELIST=srvr,ruok,stat,conf,envi
+      - ZOO_SERVER_ID=${ZOO_SERVER_ID_1}
+      - ZOO_SERVERS=${ZOO_SERVERS_1}
+      - ALLOW_ANONYMOUS_LOGIN=${ALLOW_ANONYMOUS_LOGIN}
+      - ZOO_4LW_COMMANDS_WHITELIST=${ZOO_4LW_COMMANDS_WHITELIST}
     volumes:
       - ./docker/zookeeper/config/zoo1.cfg:/opt/bitnami/zookeeper/conf/zoo.cfg
       - ./app-data/zookeeper/zookeeper1/data:/data
@@ -31,10 +33,10 @@ services:
       - "2182:2181"
       - "2281:8080"
     environment:
-      - ZOO_SERVER_ID=2
-      - ZOO_SERVERS=zookeeper1:2888:3888,0.0.0.0:2888:3888
-      - ALLOW_ANONYMOUS_LOGIN=yes
-      - ZOO_4LW_COMMANDS_WHITELIST=srvr,ruok,stat,conf,envi
+      - ZOO_SERVER_ID=${ZOO_SERVER_ID_2}
+      - ZOO_SERVERS=${ZOO_SERVERS_2}
+      - ALLOW_ANONYMOUS_LOGIN=${ALLOW_ANONYMOUS_LOGIN}
+      - ZOO_4LW_COMMANDS_WHITELIST=${ZOO_4LW_COMMANDS_WHITELIST}
     volumes:
       - ./docker/zookeeper/config/zoo2.cfg:/opt/bitnami/zookeeper/conf/zoo.cfg
       - ./app-data/zookeeper/zookeeper2/data:/data
@@ -46,7 +48,7 @@ services:
       start_period: 60s
     networks:
       - big-data-network
-      
+
   zookeeper3:
     image: bitnami/zookeeper:latest
     container_name: zookeeper3
@@ -55,10 +57,10 @@ services:
       - "2183:2181"
       - "2282:8080"
     environment:
-      - ZOO_SERVER_ID=3
-      - ZOO_SERVERS=zookeeper1:2888:3888,zookeeper2:2888:3888,0.0.0.0:2888:3888
-      - ALLOW_ANONYMOUS_LOGIN=yes
-      - ZOO_4LW_COMMANDS_WHITELIST=srvr,ruok,stat,conf,envi
+      - ZOO_SERVER_ID=${ZOO_SERVER_ID_3}
+      - ZOO_SERVERS=${ZOO_SERVERS_3}
+      - ALLOW_ANONYMOUS_LOGIN=${ALLOW_ANONYMOUS_LOGIN}
+      - ZOO_4LW_COMMANDS_WHITELIST=${ZOO_4LW_COMMANDS_WHITELIST}
     volumes:
       - ./docker/zookeeper/config/zoo3.cfg:/opt/bitnami/zookeeper/conf/zoo.cfg
       - ./app-data/zookeeper/zookeeper3/data:/data
