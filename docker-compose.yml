@@ -1,27 +1,21 @@
-version: '3.8'
-
 services:
   zookeeper1:
     image: bitnami/zookeeper:latest
     container_name: zookeeper1
     hostname: zookeeper1
     ports:
-      - "2181:2181"
-      - "2280:8080"
+      - "2181:2181"  # Client port for Zookeeper1
+      - "2888:2888"  # Follower port for peer communication
+      - "3888:3888"  # Leader election port
+      - "8081:8080"  # AdminServer port for Zookeeper1
     environment:
       - ZOO_SERVER_ID=${ZOO_SERVER_ID_1}
-      - ZOO_SERVERS=${ZOO_SERVERS_1}
+      - ZOO_SERVERS=server.1=zookeeper1:2888:3888 server.2=zookeeper2:2888:3888 server.3=zookeeper3:2888:3888
       - ALLOW_ANONYMOUS_LOGIN=${ALLOW_ANONYMOUS_LOGIN}
       - ZOO_4LW_COMMANDS_WHITELIST=${ZOO_4LW_COMMANDS_WHITELIST}
     volumes:
       - ./docker/zookeeper/config/zoo1.cfg:/opt/bitnami/zookeeper/conf/zoo.cfg
       - ./app-data/zookeeper/zookeeper1/data:/data
-    healthcheck:
-      test: [ "CMD", "sh", "-c", "echo ruok | nc localhost 2181 | grep imok" ]
-      interval: 30s
-      timeout: 10s
-      retries: 10
-      start_period: 60s
     networks:
       - big-data-network
 
@@ -30,22 +24,18 @@ services:
     container_name: zookeeper2
     hostname: zookeeper2
     ports:
-      - "2182:2181"
-      - "2281:8080"
+      - "2182:2181"  # Client port for Zookeeper2
+      - "2889:2888"  # Follower port for peer communication
+      - "3889:3888"  # Leader election port
+      - "8082:8080"  # AdminServer port for Zookeeper2
     environment:
       - ZOO_SERVER_ID=${ZOO_SERVER_ID_2}
-      - ZOO_SERVERS=${ZOO_SERVERS_2}
+      - ZOO_SERVERS=server.1=zookeeper1:2888:3888 server.2=zookeeper2:2888:3888 server.3=zookeeper3:2888:3888
       - ALLOW_ANONYMOUS_LOGIN=${ALLOW_ANONYMOUS_LOGIN}
       - ZOO_4LW_COMMANDS_WHITELIST=${ZOO_4LW_COMMANDS_WHITELIST}
     volumes:
       - ./docker/zookeeper/config/zoo2.cfg:/opt/bitnami/zookeeper/conf/zoo.cfg
       - ./app-data/zookeeper/zookeeper2/data:/data
-    healthcheck:
-      test: [ "CMD", "sh", "-c", "echo ruok | nc localhost 2181 | grep imok" ]
-      interval: 30s
-      timeout: 10s
-      retries: 10
-      start_period: 60s
     networks:
       - big-data-network
 
@@ -54,22 +44,18 @@ services:
     container_name: zookeeper3
     hostname: zookeeper3
     ports:
-      - "2183:2181"
-      - "2282:8080"
+      - "2183:2181"  # Client port for Zookeeper3
+      - "2890:2888"  # Follower port for peer communication
+      - "3890:3888"  # Leader election port
+      - "8083:8080"  # AdminServer port for Zookeeper3
     environment:
       - ZOO_SERVER_ID=${ZOO_SERVER_ID_3}
-      - ZOO_SERVERS=${ZOO_SERVERS_3}
+      - ZOO_SERVERS=server.1=zookeeper1:2888:3888 server.2=zookeeper2:2888:3888 server.3=zookeeper3:2888:3888
       - ALLOW_ANONYMOUS_LOGIN=${ALLOW_ANONYMOUS_LOGIN}
       - ZOO_4LW_COMMANDS_WHITELIST=${ZOO_4LW_COMMANDS_WHITELIST}
     volumes:
       - ./docker/zookeeper/config/zoo3.cfg:/opt/bitnami/zookeeper/conf/zoo.cfg
       - ./app-data/zookeeper/zookeeper3/data:/data
-    healthcheck:
-      test: [ "CMD", "sh", "-c", "echo ruok | nc localhost 2181 | grep imok" ]
-      interval: 30s
-      timeout: 10s
-      retries: 10
-      start_period: 60s
     networks:
       - big-data-network
 

@@ -37,6 +37,17 @@ if [ ! -f "$SCRIPT_DIR/../app-data/zookeeper/zookeeper3/data/myid" ]; then
 fi
 
 # Restart Zookeeper if it's not running
-restart_service "zookeeper1" "$COMPOSE_FILE" "zookeeper1"
-restart_service "zookeeper2" "$COMPOSE_FILE" "zookeeper2"
-restart_service "zookeeper3" "$COMPOSE_FILE" "zookeeper3"
+docker-compose -f "$COMPOSE_FILE" up -d zookeeper1 zookeeper2 zookeeper3
+
+# Check the status of the Zookeeper instances
+echo "Checking Zookeeper cluster status..."
+sleep 10
+docker exec -it zookeeper1 zkServer.sh status
+docker exec -it zookeeper2 zkServer.sh status
+docker exec -it zookeeper3 zkServer.sh status
+
+# Print AdminServer URLs
+echo "Zookeeper AdminServer URLs:"
+echo "Zookeeper1: http://localhost:8081/commands"
+echo "Zookeeper2: http://localhost:8082/commands"
+echo "Zookeeper3: http://localhost:8083/commands"
