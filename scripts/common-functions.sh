@@ -75,15 +75,21 @@ create_network_if_not_exists() {
     fi
 }
 
-# Function to extract the network name from Docker Compose file
+# Function to extract the network name from the Docker Compose file's networks section
 get_network_name() {
     local compose_file="$1"
-    local service_name="$2"
-    local network_name=$(docker-compose -f "$compose_file" config | awk -v service="$service_name" '
-    $0 ~ "services:" { in_services=1 }
-    in_services && $0 ~ service { in_service=1 }
-    in_service && $0 ~ "networks:" { getline; gsub(":", "", $1); print $1; exit }
+
+    # Use docker-compose config to parse the file and extract the network name(s)
+    local network_name=$(docker-compose -f "$compose_file" config | awk '
+    $0 ~ /^networks:/ { in_networks=1 }
+    in_networks && $0 ~ /^  [^ ]/ { gsub(":", "", $1); print $1; exit }
     ')
+
+    if [ -z "$network_name" ]; then
+        echo -e "\n$(timestamp) [ERROR] No network found in the Docker Compose file."
+        exit 1
+    fi
+
     echo "$network_name"
 }
 
@@ -104,26 +110,19 @@ check_docker_running() {
     fi
 }
 
-# Function to restart a container if it's not running
+# Function to restart one or more services
 restart_service() {
-    local service_name="$1"
-    local compose_file="$2"
-    local service_container="$3"
-    local dependent_service_name="$4"
+    local compose_file="$1"  # First argument is the Docker Compose file
+    shift  # Shift to remove the first argument (compose_file) from the list
+    local service_names=("$@")  # Remaining arguments are service names
     local project_name=$(docker-compose -f "$compose_file" config --services | head -n 1)
+    local start_mode="${START_MODE:-sequential}"  # Default to sequential mode if not specified
 
     check_docker_running
     validate_compose_file "$compose_file"
 
     # Extract network name from Docker Compose file
-    local network_name=$(get_network_name "$compose_file" "$service_name")
-    local dependent_network_name=$(get_network_name "$compose_file" "$dependent_service_name")
-
-    # Check if service and dependent service are on the same network
-    if [ "$network_name" != "$dependent_network_name" ]; then
-        echo -e "\n$(timestamp) [ERROR] $service_name and $dependent_service_name are not on the same network."
-        exit 1
-    fi
+    local network_name=$(get_network_name "$compose_file")
 
     # Ensure the network exists
     create_network_if_not_exists "$network_name"
@@ -131,11 +130,21 @@ restart_service() {
     # Remove orphan containers
     remove_orphan_containers "$project_name"
 
-    if is_running "$service_container"; then
-        echo -e "\n$(timestamp) [INFO] $service_name is already running."
+    # Start services based on the mode
+    if [ "$start_mode" == "simultaneous" ]; then
+        echo -e "\n$(timestamp) [INFO] Starting services simultaneously: ${service_names[*]}..."
+        docker-compose -f "$compose_file" up -d "${service_names[@]}"
     else
-        echo -e "\n$(timestamp) [INFO] Starting $service_name..."
-        docker-compose -f "$compose_file" up -d "$service_name"
-        verify_service "$service_container"
+        echo -e "\n$(timestamp) [INFO] Starting services sequentially: ${service_names[*]}..."
+        for service_name in "${service_names[@]}"; do
+            echo -e "\n$(timestamp) [INFO] Starting $service_name..."
+            docker-compose -f "$compose_file" up -d "$service_name"
+            verify_service "$service_name"
+        done
     fi
+
+    # Verify all services are running and healthy
+    for service_name in "${service_names[@]}"; do
+        verify_service "$service_name"
+    done
 }

@@ -28,9 +28,9 @@ for i in {1..3}; do
   fi
 done
 
-# Restart Zookeeper if it's not running
+# Restart Zookeeper cluster in simultaneous mode
 echo -e "\nStarting Zookeeper cluster..."
-docker-compose -f "$COMPOSE_FILE" up -d zookeeper1 zookeeper2 zookeeper3
+START_MODE=simultaneous restart_service "$COMPOSE_FILE" "zookeeper1" "zookeeper2" "zookeeper3"
 
 # Wait for the cluster to stabilize
 echo -e "\nWaiting for Zookeeper cluster to stabilize..."
@@ -41,13 +41,7 @@ validate_zookeeper_instance() {
   local container_name=$1
   local admin_url=$2
 
-  echo -e  "\nValidating $container_name..."
-
-  # Check if the container is running
-  if ! docker ps --filter "name=$container_name" --format '{{.Names}}' | grep -q "$container_name"; then
-    echo "Error: $container_name is not running."
-    exit 1
-  fi
+  echo -e "\nValidating $container_name..."
 
   # Check the status of the Zookeeper instance
   echo "Checking status of $container_name..."

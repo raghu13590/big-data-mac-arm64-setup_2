@@ -14,7 +14,7 @@ services:
       - ALLOW_ANONYMOUS_LOGIN=${ALLOW_ANONYMOUS_LOGIN}
       - ZOO_4LW_COMMANDS_WHITELIST=${ZOO_4LW_COMMANDS_WHITELIST}
     volumes:
-      - ./docker/zookeeper/config/zoo1.cfg:/opt/bitnami/zookeeper/conf/zoo.cfg
+      - ./docker/zookeeper/config/zoo.cfg:/opt/bitnami/zookeeper/conf/zoo.cfg
       - ./app-data/zookeeper/zookeeper1/data:/data
     networks:
       - big-data-network
@@ -34,7 +34,7 @@ services:
       - ALLOW_ANONYMOUS_LOGIN=${ALLOW_ANONYMOUS_LOGIN}
       - ZOO_4LW_COMMANDS_WHITELIST=${ZOO_4LW_COMMANDS_WHITELIST}
     volumes:
-      - ./docker/zookeeper/config/zoo2.cfg:/opt/bitnami/zookeeper/conf/zoo.cfg
+      - ./docker/zookeeper/config/zoo.cfg:/opt/bitnami/zookeeper/conf/zoo.cfg
       - ./app-data/zookeeper/zookeeper2/data:/data
     networks:
       - big-data-network
@@ -54,7 +54,7 @@ services:
       - ALLOW_ANONYMOUS_LOGIN=${ALLOW_ANONYMOUS_LOGIN}
       - ZOO_4LW_COMMANDS_WHITELIST=${ZOO_4LW_COMMANDS_WHITELIST}
     volumes:
-      - ./docker/zookeeper/config/zoo3.cfg:/opt/bitnami/zookeeper/conf/zoo.cfg
+      - ./docker/zookeeper/config/zoo.cfg:/opt/bitnami/zookeeper/conf/zoo.cfg
       - ./app-data/zookeeper/zookeeper3/data:/data
     networks:
       - big-data-network
